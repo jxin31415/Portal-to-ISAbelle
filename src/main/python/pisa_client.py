@@ -21,8 +21,12 @@ def create_stub(port=9000):
                                              ('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH)])
     return server_pb2_grpc.ServerStub(channel)
 
-
-def initialise_env(port, isa_path, theory_file_path, working_directory, debug=False):
+# TODO: set default Isabelle location
+def initialise_env(port=8000,
+                   isa_path="/Applications/Isabelle2022.app",
+                   theory_file_path="/Applications/Isabelle2022.app/src/HOL/Computational_Algebra/Primes.thy",
+                   working_directory="/Applications/Isabelle2022.app/src/HOL/Computational_Algebra", 
+                   debug=False):
     return PisaEnv(port=port, isa_path=isa_path, starter_string=theory_file_path, working_directory=working_directory, debug=debug)
 
 
