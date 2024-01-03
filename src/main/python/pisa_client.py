@@ -226,8 +226,7 @@ class PisaEnv:
     
     @func_set_timeout(1800, allowOverride=True)
     def apply_hammer(self, tls_name, new_name):
-        self.step(tls_name, 'normalhammer', new_name, delete_old_state=False)
-        return None
+        return self.step(tls_name, 'normalhammer', new_name, delete_old_state=False)
 
     def proceed_after(self, line_string):
         return self.post(f"<proceed after> {line_string}", forceTimeout=10000)
