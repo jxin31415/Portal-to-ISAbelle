@@ -22,6 +22,12 @@ if __name__ == '__main__':
                           delete_old_state=False)
     print(obs_string)
 
+    # Attempt to use Sledgehammer
+    print(env.get_tactic_by_hammer('state1'))
+    obs_string = env.apply_hammer('state1', 'hammered')
+    print(obs_string)
+    print("Finished? " + str(env.is_finished('hammered')))
+
     # Prove the lemma
     obs_string = env.step('state1', 
                           "proof (rule classical)",
@@ -55,10 +61,10 @@ qed
     print(obs_string)
 
     # Proof is not done until qed
-    print(env.is_finished('state5'))
+    print("Finished? " + str(env.is_finished('state5')))
     obs_string = env.step('state5', 
                           'qed',
                           'state6', 
                           delete_old_state=False)
-    print(env.is_finished('state6'))
+    print("Finished? " + str(env.is_finished('state6')))
 

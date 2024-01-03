@@ -215,6 +215,19 @@ class PisaEnv:
             done = self.is_finished(new_name)
         # done = True if ("subgoal" in last_obs_string and "subgoal" not in obs_string) else False
         return obs_string, self.reward(done), done, {}
+    
+    @func_set_timeout(1800, allowOverride=True)
+    def get_tactic_by_hammer(self, tls_name):
+        tactic = self.step(tls_name,
+                          'normalhammer',
+                          'hammered',
+                          delete_old_state=False)
+        return tactic.replace("<hammer>", "").strip()
+    
+    @func_set_timeout(1800, allowOverride=True)
+    def apply_hammer(self, tls_name, new_name):
+        tactic = self.get_tactic_by_hammer(tls_name)
+        return self.step(tls_name, tactic, new_name, delete_old_state=False)
 
     def proceed_after(self, line_string):
         return self.post(f"<proceed after> {line_string}", forceTimeout=10000)
