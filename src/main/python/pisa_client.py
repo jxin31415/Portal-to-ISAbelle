@@ -3,6 +3,7 @@ from __future__ import print_function
 import os
 import json
 import grpc
+import re
 import hashlib
 
 from copy import copy
@@ -146,7 +147,7 @@ class PisaEnv:
         # print("*"*100)
         return explicit_premises
 
-    def get_fact_defintion(self, name_of_tls, fact_name):
+    def get_fact_definition(self, name_of_tls, fact_name):
         message = f"<get fact definition>{name_of_tls}<get fact definition>{fact_name}"
         # print(f"Get fact definition: {message}")
         returned_string = self.post(message)
@@ -217,16 +218,36 @@ class PisaEnv:
         return obs_string, self.reward(done), done, {}
     
     @func_set_timeout(1800, allowOverride=True)
-    def get_tactic_by_hammer(self, tls_name):
-        tactic = self.step(tls_name,
-                          'normalhammer',
-                          'hammered',
-                          delete_old_state=False)
-        return tactic.replace("<hammer>", "").strip()
-    
-    @func_set_timeout(1800, allowOverride=True)
     def apply_hammer(self, tls_name, new_name):
         return self.step(tls_name, 'normalhammer', new_name, delete_old_state=False)
+    
+    @func_set_timeout(1800, allowOverride=True)
+    def get_all_defns(self, theorem_name):
+        message = f"<get all definitions> {theorem_name}"
+        return self.post(message)
+
+    # Parse facts and defs and extract the lemma names
+    def parse_lemma_content(self, message: str):
+        return re.findall(r'<SEP>(.*?)<DEF>', message)
+
+    @func_set_timeout(1800, allowOverride=True)
+    def get_local_lemmas(self, tls_name):
+        message = f"<local facts and defs> {tls_name}"
+        return self.parse_lemma_content(self.post(message))
+    
+    @func_set_timeout(1800, allowOverride=True)
+    def get_global_lemmas(self, tls_name):
+        message = f"<global facts and defs> {tls_name}"
+        return self.parse_lemma_content(self.post(message))
+    
+    @func_set_timeout(1800, allowOverride=True)
+    def get_total_lemmas(self, tls_name): # local + global
+        message = f"<total facts and defs> {tls_name}"
+        return self.parse_lemma_content(self.post(message))
+    
+    def get_state(self, tls_name):
+        message = f"<get state> {tls_name}"
+        return self.post(message)
 
     def proceed_after(self, line_string):
         return self.post(f"<proceed after> {line_string}", forceTimeout=10000)

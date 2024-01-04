@@ -9,8 +9,9 @@ if __name__ == '__main__':
     print(default_st)
 
     # Returns error string!
-    obs_string = env.step('default', 'theory Drinker', 'state0', delete_old_state=False)
-    print(obs_string)
+    # obs_string = env.step('default', 'theory Drinker', 'state0', delete_old_state=False)
+    # print(obs_string)
+
     # Initialization of theory
     obs_string = env.step('default', 'theory Drinker imports Main begin', 'state0', delete_old_state=False)
     print(obs_string)
@@ -20,10 +21,16 @@ if __name__ == '__main__':
                           'lemma de_Morgan: assumes "\\<not> (\\<forall>x. P x)" shows "\\<exists>x. \\<not> P x"',
                           'state1', 
                           delete_old_state=False)
-    print(obs_string)
+    print(env.get_state('state1'))
+
+    all_lemmas = env.get_total_lemmas('state1')
+    print("Num lemmas: " + str(len(all_lemmas)))
+    print(all_lemmas[0:10]) # First 10 lemmas
+    for lemma in all_lemmas: # Sanity check with less complicated/weird lemmas
+        if "ln_gt_zero" in lemma:
+            print(lemma)
 
     # Attempt to use Sledgehammer
-    print(env.get_tactic_by_hammer('state1'))
     obs_string = env.apply_hammer('state1', 'hammered')
     print(obs_string)
     print("Finished? " + str(env.is_finished('hammered')))
