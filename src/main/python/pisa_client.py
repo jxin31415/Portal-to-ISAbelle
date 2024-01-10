@@ -227,23 +227,30 @@ class PisaEnv:
         return self.post(message)
 
     # Parse facts and defs and extract the lemma names
-    def parse_lemma_content(self, message: str):
-        return re.findall(r'<SEP>(.*?)<DEF>', message)
+    def parse_lemma_content(self, tls_name, message: str, include_dfns=True):
+        lemmas = re.findall(r'<SEP>(.*?)<DEF>', message)
+        if include_dfns:
+            for idx in range(len(lemmas)):
+                try:
+                    lemmas[idx] += ': ' + self.get_fact_definition(tls_name, lemmas[idx])
+                except Exception as e:
+                    pass # Some lemmas are malformed
+        return lemmas
 
     @func_set_timeout(1800, allowOverride=True)
     def get_local_lemmas(self, tls_name):
         message = f"<local facts and defs> {tls_name}"
-        return self.parse_lemma_content(self.post(message))
+        return self.parse_lemma_content(tls_name, self.post(message))
     
     @func_set_timeout(1800, allowOverride=True)
     def get_global_lemmas(self, tls_name):
         message = f"<global facts and defs> {tls_name}"
-        return self.parse_lemma_content(self.post(message))
+        return self.parse_lemma_content(tls_name, self.post(message))
     
     @func_set_timeout(1800, allowOverride=True)
     def get_total_lemmas(self, tls_name): # local + global
         message = f"<total facts and defs> {tls_name}"
-        return self.parse_lemma_content(self.post(message))
+        return self.parse_lemma_content(tls_name, self.post(message))
     
     def get_state(self, tls_name):
         message = f"<get state> {tls_name}"
