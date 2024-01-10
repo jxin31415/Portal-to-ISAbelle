@@ -17,6 +17,13 @@ from . import server_pb2_grpc
 MAX_MESSAGE_LENGTH = 10485760 * 10
 THEOREM_SEPARATOR = "<THM_SEP>"
 
+class IsabelleLemma(object):
+    def __init__(self, name: str, dfn: str) -> None:
+        self.name = name
+        self.dfn = dfn
+    
+    def __str__(self) -> str:
+        return f"{self.name}: {self.dfn}"
 
 def create_stub(port=9000):
     channel = grpc.insecure_channel('localhost:{}'.format(port),
@@ -232,9 +239,10 @@ class PisaEnv:
         if include_dfns:
             for idx in range(len(lemmas)):
                 try:
-                    lemmas[idx] += ': ' + self.get_fact_definition(tls_name, lemmas[idx])
-                except Exception as e:
-                    pass # Some lemmas are malformed
+                    lemmas[idx] = IsabelleLemma(lemmas[idx], self.get_fact_definition(tls_name, lemmas[idx]))
+                except Exception as e: # Some lemmas are malformed
+                    lemmas[idx] = IsabelleLemma(lemmas[idx], '')
+                    pass
         return lemmas
 
     @func_set_timeout(1800, allowOverride=True)
