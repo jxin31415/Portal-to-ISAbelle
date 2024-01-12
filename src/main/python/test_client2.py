@@ -25,10 +25,9 @@ if __name__ == '__main__':
 
     all_lemmas = env.get_total_lemmas('state1')
     print("Num lemmas: " + str(len(all_lemmas)))
-    print(all_lemmas[0:10]) # First 10 lemmas
     for lemma in all_lemmas: # Sanity check with less complicated/weird lemmas
-        if "ln_gt_zero" in lemma:
-            print(lemma)
+        if "ln_gt_zero" in lemma.name:
+            print(lemma.dfn)
 
     # Attempt to use Sledgehammer
     obs_string = env.apply_hammer('state1', 'hammered')

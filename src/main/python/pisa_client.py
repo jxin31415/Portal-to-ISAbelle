@@ -33,13 +33,13 @@ def create_stub(port=9000):
     return server_pb2_grpc.ServerStub(channel)
 
 def initialise_env(port=8000,
-                   isa_path="/Applications/Isabelle2022.app",
-                   theory_file_path="/Applications/Isabelle2022.app/src/HOL/Library/Discrete.thy",
-                   working_directory="/Applications/Isabelle2022.app/src/HOL/Library", 
+                   isa_path="~/Isabelle2022",
+                   theory_file_path="~/Isabelle2022/src/HOL/Library/Discrete.thy",
+                   working_directory="~/Isabelle2022/src/HOL/Library", 
                    debug=False):
-    isa_path = os.path.abspath(isa_path)
-    theory_file_path = os.path.abspath(theory_file_path)
-    working_directory = os.path.abspath(working_directory)
+    isa_path = os.path.expanduser(isa_path)
+    theory_file_path = os.path.expanduser(theory_file_path)
+    working_directory = os.path.expanduser(working_directory)
     return PisaEnv(port=port, isa_path=isa_path, starter_string=theory_file_path, working_directory=working_directory, debug=debug)
 
 
@@ -182,7 +182,7 @@ class PisaEnv:
         if debug: print("2, stepping")
         premises = self.get_premises(tls_unique_name, only_name, proof_body)
         if debug: print("3", premises)
-        premises_and_their_definitions = [(premise, self.get_fact_defintion(tls_unique_name, premise)) for premise in premises]
+        premises_and_their_definitions = [(premise, self.get_fact_definition(tls_unique_name, premise)) for premise in premises]
         if debug: print("4", premises_and_their_definitions)
         self.post(f"<delete> {tls_unique_name}")
         return premises_and_their_definitions

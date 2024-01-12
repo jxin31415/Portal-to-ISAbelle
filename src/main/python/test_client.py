@@ -4,9 +4,9 @@ from pisa_client import initialise_env
 if __name__ == '__main__':
     env = initialise_env(
         8000, 
-        "/pisa/Isabelle2022", 
-        "/pisa/Isabelle2022/src/HOL/Computational_Algebra/Primes.thy",
-        "/pisa/Isabelle2022/src/HOL/Computational_Algebra"
+        "~/Isabelle2022", 
+        "~/Isabelle2022/src/HOL/Computational_Algebra/Primes.thy",
+        "~/Isabelle2022/src/HOL/Computational_Algebra"
     )
     env.proceed_to_line('end', 'before')
     env.initialise()
