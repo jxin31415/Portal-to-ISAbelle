@@ -17,10 +17,11 @@ from . import server_pb2_grpc
 MAX_MESSAGE_LENGTH = 10485760 * 10
 THEOREM_SEPARATOR = "<THM_SEP>"
 
+# Class to store Isabelle lemmas and hypotheses
 class IsabelleLemma(object):
     def __init__(self, name: str, dfn: str) -> None:
-        self.name = name
-        self.dfn = dfn
+        self.name = name # The full lemma name
+        self.dfn = dfn # The abridged lemma name and defn
     
     def __str__(self) -> str:
         return f"{self.name}: {self.dfn}"
@@ -224,10 +225,12 @@ class PisaEnv:
         # done = True if ("subgoal" in last_obs_string and "subgoal" not in obs_string) else False
         return obs_string, self.reward(done), done, {}
     
+    # Attempts to run sledgehammer on the current proof state
     @func_set_timeout(1800, allowOverride=True)
     def apply_hammer(self, tls_name, new_name):
         return self.step(tls_name, 'normalhammer', new_name, delete_old_state=False)
     
+    # Does not seem to work
     @func_set_timeout(1800, allowOverride=True)
     def get_all_defns(self, theorem_name):
         message = f"<get all definitions> {theorem_name}"
@@ -241,21 +244,25 @@ class PisaEnv:
         lemmas = [IsabelleLemma(lemma.split('<DEF>')[0].strip(), lemma.split('<DEF>')[1].strip()) for lemma in sep]
         return lemmas
 
+    # Get local hypotheses
     @func_set_timeout(1800, allowOverride=True)
     def get_local_lemmas(self, tls_name):
         message = f"<local facts and defs> {tls_name}"
         return self.parse_lemma_content(tls_name, self.post(message))
     
+    # Get global lemmas (may be from imports)
     @func_set_timeout(1800, allowOverride=True)
     def get_global_lemmas(self, tls_name):
         message = f"<global facts and defs> {tls_name}"
         return self.parse_lemma_content(tls_name, self.post(message))
     
+    # Local + global lemmas
     @func_set_timeout(1800, allowOverride=True)
-    def get_total_lemmas(self, tls_name): # local + global
+    def get_total_lemmas(self, tls_name):
         message = f"<total facts and defs> {tls_name}"
         return self.parse_lemma_content(tls_name, self.post(message))
     
+    # Get the proof state string (this + goals)
     def get_state(self, tls_name):
         message = f"<get state> {tls_name}"
         return self.post(message)
