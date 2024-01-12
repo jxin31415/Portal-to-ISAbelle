@@ -3,7 +3,6 @@
 import grpc
 
 from . import server_pb2 as server__pb2
-# import server_pb2 as server__pb2
 
 class ServerStub(object):
     """Missing associated documentation comment in .proto file."""

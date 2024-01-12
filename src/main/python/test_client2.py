@@ -1,4 +1,4 @@
-from pisa_client import initialise_env
+from .pisa_client import initialise_env
 
 
 if __name__ == '__main__':
