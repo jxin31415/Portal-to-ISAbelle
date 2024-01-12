@@ -37,9 +37,9 @@ def initialise_env(port=8000,
                    theory_file_path="~/Isabelle2022/src/HOL/Library/Discrete.thy",
                    working_directory="~/Isabelle2022/src/HOL/Library", 
                    debug=False):
-    isa_path = os.path.expanduser(isa_path)
-    theory_file_path = os.path.expanduser(theory_file_path)
-    working_directory = os.path.expanduser(working_directory)
+    isa_path = os.path.abspath(os.path.expanduser(isa_path))
+    theory_file_path = os.path.abspath(os.path.expanduser(theory_file_path))
+    working_directory = os.path.abspath(os.path.expanduser(working_directory))
     return PisaEnv(port=port, isa_path=isa_path, starter_string=theory_file_path, working_directory=working_directory, debug=debug)
 
 
