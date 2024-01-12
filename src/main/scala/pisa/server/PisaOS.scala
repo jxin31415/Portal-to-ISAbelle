@@ -229,16 +229,14 @@ class PisaOS(
         |  in 
         |      map (fn thm => (
         |            Thm.get_name_hint thm,
-        |            Pretty.unformatted_string_of
-        |          (Element.pretty_statement ctxt "" thm)
-        |         ))
+        |            YXML.content_of (Pretty.unformatted_string_of (Element.pretty_statement ctxt "" thm))))
         |         condensed_thms
         |  end""".stripMargin
     )
   val global_facts_and_defs: MLFunction[ToplevelState, List[(String, String)]] =
     compileFunction[ToplevelState, List[(String, String)]](
       """fn tls =>
-          | map (fn tup => (#1 tup, Pretty.unformatted_string_of (Element.pretty_statement (Toplevel.context_of tls) "test" (#2 tup))))
+          | map (fn tup => (#1 tup, YXML.content_of (Pretty.unformatted_string_of (Element.pretty_statement (Toplevel.content_of tls) "test" (#2 tup)))))
           | (Global_Theory.all_thms_of (Proof_Context.theory_of (Toplevel.context_of tls)) false)
           """.stripMargin
     )

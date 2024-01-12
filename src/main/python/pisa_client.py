@@ -234,15 +234,11 @@ class PisaEnv:
         return self.post(message)
 
     # Parse facts and defs and extract the lemma names
-    def parse_lemma_content(self, tls_name, message: str, include_dfns=True):
-        lemmas = re.findall(r'<SEP>(.*?)<DEF>', message)
-        if include_dfns:
-            for idx in range(len(lemmas)):
-                try:
-                    lemmas[idx] = IsabelleLemma(lemmas[idx], self.get_fact_definition(tls_name, lemmas[idx]))
-                except Exception as e: # Some lemmas are malformed
-                    lemmas[idx] = IsabelleLemma(lemmas[idx], '')
-                    pass
+    def parse_lemma_content(self, tls_name, message: str):
+        if not message.strip():
+            return []
+        sep = message.split('<SEP>')
+        lemmas = [IsabelleLemma(lemma.split('<DEF>')[0].strip(), lemma.split('<DEF>')[1].strip()) for lemma in sep]
         return lemmas
 
     @func_set_timeout(1800, allowOverride=True)
