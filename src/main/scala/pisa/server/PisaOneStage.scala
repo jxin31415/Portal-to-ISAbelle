@@ -158,7 +158,7 @@ class OneStageBody extends ZServer[ZEnv, Any] {
     var raw_hammer_strings = List[String]()
     val actual_step: String =
       try {
-        val total_result = hammer_method(old_state, 40000)
+        val total_result = hammer_method(old_state, 2000000)
         // println(total_result)
         val success = total_result._1
         if (success) {
