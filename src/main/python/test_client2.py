@@ -9,18 +9,17 @@ if __name__ == '__main__':
     print(default_st)
 
     # Returns error string!
-    # obs_string = env.step('default', 'theory Drinker', 'state0', delete_old_state=False)
+    # obs_string = env.step('default', 'theory Drinker', 'state0')
     # print(obs_string)
 
     # Initialization of theory
-    obs_string = env.step('default', 'theory Drinker imports Main begin', 'state0', delete_old_state=False)
+    obs_string = env.step('default', 'theory Drinker imports Main begin', 'state0')
     print(obs_string)
 
     # Declare a lemma
     obs_string = env.step('state0', 
                           'lemma de_Morgan: assumes "\\<not> (\\<forall>x. P x)" shows "\\<exists>x. \\<not> P x"',
-                          'state1', 
-                          delete_old_state=False)
+                          'state1')
     print(env.get_state('state1'))
 
     # all_lemmas = env.get_total_lemmas('state1')
@@ -37,13 +36,11 @@ if __name__ == '__main__':
     # Prove the lemma
     obs_string = env.step('state1', 
                           "proof (rule classical)",
-                          'state2', 
-                          delete_old_state=False)
+                          'state2')
     print(obs_string)
     obs_string = env.step('state2', 
                           "assume \"\\<nexists>x. \\<not> P x\"",
-                          'state3', 
-                          delete_old_state=False)
+                          'state3')
     print(obs_string)
     obs_string = env.step('state3', 
                           """
@@ -57,29 +54,26 @@ proof (rule classical)
 qed
 qed
                           """,
-                          'state4', 
-                          delete_old_state=False)
+                          'state4')
     print(obs_string)
     obs_string = env.step('state4', 
                           "with \\<open>\\<not> (\\<forall>x. P x)\\<close> show ?thesis by contradiction",
-                          'state5', 
-                          delete_old_state=False)
+                          'state5')
     print(obs_string)
 
     # Proof is not done until qed
     print("Finished? " + str(env.is_finished('state5')))
+    # Re-using the same state is ok too
     obs_string = env.step('state5', 
                           'qed',
-                          'state6', 
-                          delete_old_state=False)
-    print("Finished? " + str(env.is_finished('state6')))
+                          'state5')
+    print("Finished? " + str(env.is_finished('state5')))
 
-    # Test some non-sledgehammerable theorems
-    obs_string = env.step('state0', 
-                          'lemma conc_empty: "conc xs Empty = xs"',
-                          'state1', 
-                          delete_old_state=False)
-    print(env.get_state('state1'))
+    # # Test some non-sledgehammerable theorems
+    # obs_string = env.step('state0', 
+    #                       'lemma conc_empty: "conc xs Empty = xs"',
+    #                       'state1')
+    # print(env.get_state('state1'))
 
-    obs_string = env.apply_hammer('state1', 'hammered2')
-    print(obs_string)
+    # obs_string = env.apply_hammer('state1', 'hammered2')
+    # print(obs_string)
