@@ -117,7 +117,7 @@ class OneStageBody extends ZServer[ZEnv, Any] {
 
   val TRY_STRING: String = "Try this:"
   val FOUND_PROOF_STRING: String = "found a proof:"
-  val ERROR_MSG: String = "Step error: sledgehammer failed to find a proof before timing out."
+  val ERROR_MSG: String = "sledgehammer failed to find a proof before timing out."
   val SMT_HAMMER: String = "sledgehammer"
   val METIS_HAMMER: String = "metishammer"
   val NORMAL_HAMMER: String = "normalhammer"
@@ -156,25 +156,17 @@ class OneStageBody extends ZServer[ZEnv, Any] {
   ): String = {
     // If found a sledgehammer step, execute it differently
     var raw_hammer_strings = List[String]()
+    val total_result = hammer_method(old_state, 600000)
+    // println(total_result)
+    val success = total_result._1
     val actual_step: String =
-      try {
-        val total_result = hammer_method(old_state, 600000)
-        // println(total_result)
-        val success = total_result._1
-        if (success) {
-          // println("Hammer string list: " + total_result._2.mkString(" ||| "))
-          val tentative_step = process_hammer_strings(total_result._2)
-          println("actual_step: " + tentative_step)
-          tentative_step
-        } else {
-          println(ERROR_MSG)
-          ERROR_MSG
-        }
-      } catch {
-        case e: Exception => {
-          println("Exception while trying to run sledgehammer: " + e.getMessage)
-          e.getMessage
-        }
+      if (success) {
+        // println("Hammer string list: " + total_result._2.mkString(" ||| "))
+        val tentative_step = process_hammer_strings(total_result._2)
+        println("actual_step: " + tentative_step)
+        tentative_step
+      } else {
+        throw new TimeoutException(ERROR_MSG)
       }
     // println(actual_step)
     assert(actual_step.trim.nonEmpty)
@@ -404,6 +396,11 @@ class OneStageBody extends ZServer[ZEnv, Any] {
           // println(s"Start applying action '${action}' to top level state '${tls_name}'")
           deal_with_apply_to_tls(tls_name, action, new_name)
         } catch {
+          case d: TimeoutException => {
+            println("Action: " + action)
+            println("TimeoutException: " + d.getMessage + "\n")
+            "Step error: " + d.getMessage
+          }
           case e: IsabelleMLException => {
             println("Action: " + action)
             println("IsabelleException: " + e.getMessage + "\n")

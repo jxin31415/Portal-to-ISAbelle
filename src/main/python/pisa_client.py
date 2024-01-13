@@ -222,11 +222,7 @@ class PisaEnv:
     
     # Attempts to run sledgehammer on the current proof state
     def apply_hammer(self, tls_name, new_name):
-        description = self.step(tls_name, 'normalhammer', new_name)
-        print(description)
-        if description.startswith('Step error:'):
-            return 'Step error: Sledgehammer failed / timed out before returning a proof'
-        return description
+        return self.step(tls_name, 'normalhammer', new_name)
     
     # Does not seem to work
     def get_all_defns(self, theorem_name):
