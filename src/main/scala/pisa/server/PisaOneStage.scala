@@ -117,7 +117,7 @@ class OneStageBody extends ZServer[ZEnv, Any] {
 
   val TRY_STRING: String = "Try this:"
   val FOUND_PROOF_STRING: String = "found a proof:"
-  val ERROR_MSG: String = "error"
+  val ERROR_MSG: String = "Step error: sledgehammer failed to find a proof before timing out."
   val SMT_HAMMER: String = "sledgehammer"
   val METIS_HAMMER: String = "metishammer"
   val NORMAL_HAMMER: String = "normalhammer"
@@ -158,15 +158,16 @@ class OneStageBody extends ZServer[ZEnv, Any] {
     var raw_hammer_strings = List[String]()
     val actual_step: String =
       try {
-        val total_result = hammer_method(old_state, 60000)
+        val total_result = hammer_method(old_state, 600000)
         // println(total_result)
         val success = total_result._1
         if (success) {
           // println("Hammer string list: " + total_result._2.mkString(" ||| "))
           val tentative_step = process_hammer_strings(total_result._2)
-          // println("actual_step: " + tentative_step)
+          println("actual_step: " + tentative_step)
           tentative_step
         } else {
+          println(ERROR_MSG)
           ERROR_MSG
         }
       } catch {
@@ -186,7 +187,7 @@ class OneStageBody extends ZServer[ZEnv, Any] {
       new_name: String
   ): String = {
     if (pisaos.top_level_state_map.contains(toplevel_state_name)) {
-      var actual_timeout = 10000
+      var actual_timeout = 30000
       val old_state: ToplevelState = pisaos.retrieve_tls(toplevel_state_name)
       var actual_step: String = "Gibberish"
       var hammered: Boolean = false
@@ -210,7 +211,7 @@ class OneStageBody extends ZServer[ZEnv, Any] {
         hammered = true
       } else if (action.startsWith(ALLOW_MORE_TIME)) {
         actual_step = action.split(ALLOW_MORE_TIME).drop(1).mkString("").trim
-        actual_timeout = 30000
+        actual_timeout = 60000
       } else {
         actual_step = action
       }

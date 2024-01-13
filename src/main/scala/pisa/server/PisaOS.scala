@@ -584,14 +584,14 @@ class PisaOS(
             |             val p_state = Toplevel.proof_of state;
             |             val ctxt = Proof.context_of p_state;
             |             val params = ${Sledgehammer_Commands}.default_params thy
-            |                [("provers", "cvc5 vampire verit e spass z3 zipperposition"),("timeout","30"),("verbose","true")];
+            |                [("provers", "cvc5 vampire verit e spass z3 zipperposition"),("timeout","60"),("verbose","true")];
             |             val results = ${Sledgehammer}.run_sledgehammer params ${Sledgehammer_Prover}.Normal NONE 1 override p_state;
             |             val (result, (outcome, step)) = results;
             |           in
             |             (result, (${Sledgehammer}.short_string_of_sledgehammer_outcome outcome, [YXML.content_of step]))
             |           end;
             |    in
-            |      Timeout.apply (Time.fromSeconds 35) go_run (state, thy) end
+            |      Timeout.apply (Time.fromSeconds 600000) go_run (state, thy) end
             |""".stripMargin
     )
 
@@ -706,7 +706,7 @@ class PisaOS(
   def step(
       isar_string: String,
       top_level_state: ToplevelState,
-      timeout_in_millis: Int = 2000
+      timeout_in_millis: Int = 30000,
   ): ToplevelState = {
     if (debug) println("Begin step")
     // Normal isabelle business
@@ -763,7 +763,7 @@ class PisaOS(
       top_level_state: ToplevelState,
       added_names: List[String],
       deleted_names: List[String],
-      timeout_in_millis: Int = 35000
+      timeout_in_millis: Int,
   ): (Boolean, List[String]) = {
     val f_res: Future[(Boolean, List[String])] = Future.apply {
       val first_result = normal_with_Sledgehammer(
