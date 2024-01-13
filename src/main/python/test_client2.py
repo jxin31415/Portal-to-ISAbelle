@@ -23,11 +23,11 @@ if __name__ == '__main__':
                           delete_old_state=False)
     print(env.get_state('state1'))
 
-    all_lemmas = env.get_total_lemmas('state1')
-    print("Num lemmas: " + str(len(all_lemmas)))
-    for lemma in all_lemmas: # Sanity check with less complicated/weird lemmas
-        if "ln_gt_zero" in lemma.name:
-            print(lemma.dfn)
+    # all_lemmas = env.get_total_lemmas('state1')
+    # print("Num lemmas: " + str(len(all_lemmas)))
+    # for lemma in all_lemmas: # Sanity check with less complicated/weird lemmas
+    #     if "ln_gt_zero" in lemma.name:
+    #         print(lemma.dfn)
 
     # Attempt to use Sledgehammer
     obs_string = env.apply_hammer('state1', 'hammered')
@@ -74,3 +74,12 @@ qed
                           delete_old_state=False)
     print("Finished? " + str(env.is_finished('state6')))
 
+    # Test some non-sledgehammerable theorems
+    obs_string = env.step('state0', 
+                          'lemma conc_empty: "conc xs Empty = xs"',
+                          'state1', 
+                          delete_old_state=False)
+    print(env.get_state('state1'))
+
+    obs_string = env.apply_hammer('state1', 'hammered2', forceTimeout=3)
+    print(obs_string)
