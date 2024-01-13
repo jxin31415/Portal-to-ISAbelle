@@ -81,5 +81,5 @@ qed
                           delete_old_state=False)
     print(env.get_state('state1'))
 
-    obs_string = env.apply_hammer('state1', 'hammered2', forceTimeout=3)
+    obs_string = env.apply_hammer('state1', 'hammered2')
     print(obs_string)

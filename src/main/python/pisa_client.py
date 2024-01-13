@@ -7,7 +7,6 @@ import re
 import hashlib
 
 from copy import copy
-from func_timeout import func_set_timeout
 
 from . import server_pb2
 from . import server_pb2_grpc
@@ -73,7 +72,6 @@ class PisaEnv:
             print(e)
         return f"Starting is successful: {self.successful_starting}"
 
-    @func_set_timeout(1800, allowOverride=True)
     def step(self, old_name, step, new_name, delete_old_state=True) -> str:
         '''
         :param old_name: the name of the old state
@@ -205,7 +203,6 @@ class PisaEnv:
         message = f"<accumulative_step_through_a_theorem>"
         return self.post(message)
 
-    @func_set_timeout(1800, allowOverride=True)
     def step_to_top_level_state(self, action, tls_name, new_name):
         # last_obs_string = self.stub.IsabelleCommand(server_pb2.IsaCommand(command=f"<get state> {tls_name}")).state
         obs_string = "Step error"
@@ -224,12 +221,13 @@ class PisaEnv:
         return obs_string, self.reward(done), done, {}
     
     # Attempts to run sledgehammer on the current proof state
-    @func_set_timeout(1800, allowOverride=True)
     def apply_hammer(self, tls_name, new_name):
-        return self.step(tls_name, 'normalhammer', new_name, delete_old_state=False)
+        description = self.step(tls_name, 'normalhammer', new_name, delete_old_state=False)
+        if description.startswith('Step error:'):
+            return 'Step error: Sledgehammer failed / timed out before returning a proof'
+        return description
     
     # Does not seem to work
-    @func_set_timeout(1800, allowOverride=True)
     def get_all_defns(self, theorem_name):
         message = f"<get all definitions> {theorem_name}"
         return self.post(message)
@@ -243,19 +241,16 @@ class PisaEnv:
         return lemmas
 
     # Get local hypotheses
-    @func_set_timeout(1800, allowOverride=True)
     def get_local_lemmas(self, tls_name):
         message = f"<local facts and defs> {tls_name}"
         return self.parse_lemma_content(tls_name, self.post(message))
     
     # Get global lemmas (may be from imports)
-    @func_set_timeout(1800, allowOverride=True)
     def get_global_lemmas(self, tls_name):
         message = f"<global facts and defs> {tls_name}"
         return self.parse_lemma_content(tls_name, self.post(message))
     
     # Local + global lemmas
-    @func_set_timeout(1800, allowOverride=True)
     def get_total_lemmas(self, tls_name):
         message = f"<total facts and defs> {tls_name}"
         return self.parse_lemma_content(tls_name, self.post(message))
@@ -266,15 +261,14 @@ class PisaEnv:
         return self.post(message)
 
     def proceed_after(self, line_string):
-        return self.post(f"<proceed after> {line_string}", forceTimeout=10000)
+        return self.post(f"<proceed after> {line_string}")
 
     def initialise(self):
-        return self.post("<initialise>", forceTimeout=10)
+        return self.post("<initialise>")
 
     def clone_to_new_name(self, new_name):
-        return self.post(f"<clone> default <clone> {new_name}", forceTimeout=10)
+        return self.post(f"<clone> default <clone> {new_name}")
 
-    @func_set_timeout(1800, allowOverride=True)
     def post(self, action):
         if self.debug: print(action)
         returned = self.stub.IsabelleCommand(server_pb2.IsaCommand(command=action)).state
