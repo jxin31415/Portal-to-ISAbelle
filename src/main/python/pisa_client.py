@@ -62,14 +62,15 @@ class PisaEnv:
     def reset(self):
         self.stub = create_stub(port=self.port)
         try:
-            print(self.stub.InitialiseIsabelle(server_pb2.IsaPath(path=self.isa_path)).message)
-            print(self.stub.IsabelleWorkingDirectory(server_pb2.IsaPath(path=self.working_directory)).message)
-            print(self.stub.IsabelleContext(server_pb2.IsaContext(context=self.starter_string)).message)
+            self.stub.InitialiseIsabelle(server_pb2.IsaPath(path=self.isa_path)).message
+            self.stub.IsabelleWorkingDirectory(server_pb2.IsaPath(path=self.working_directory)).message
+            self.stub.IsabelleContext(server_pb2.IsaContext(context=self.starter_string)).message
             self.successful_starting = True
         except Exception as e:
-            print("Failure at initialising Isabelle process.\n"
-                  "Make sure the path your provide is where the Isabelle executable is.")
-            print(e)
+            # print("Failure at initialising Isabelle process.\n"
+            #       "Make sure the path your provide is where the Isabelle executable is.")
+            # print(e)
+            pass
         return f"Starting is successful: {self.successful_starting}"
 
     def step(self, old_name, step, new_name, delete_old_state=False) -> str:
