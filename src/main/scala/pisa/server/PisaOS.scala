@@ -436,7 +436,9 @@ class PisaOS(
     if (debug) println("Checkpoint 9_3")
     val registers: ListBuffer[String] = new ListBuffer[String]()
     if (debug) println("Checkpoint 9_4")
-    for (theory_name <- header.imports) {
+    val theoryNamesPost = "Complex_Main" :: "HOL-Library.Sum_of_Squares" :: header.imports
+    println("Imports: " + theoryNamesPost)
+    for (theory_name <- theoryNamesPost) {
       // var treated_name = theory_name.trim
       // if (treated_name.startsWith("..")) {
       //   val filedir_chunks = path_to_file.split("/").dropRight(1)
