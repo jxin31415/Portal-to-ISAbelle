@@ -148,19 +148,12 @@ class PisaOS(
     compileFunction[Boolean, Transition.T, ToplevelState, ToplevelState](
       "fn (int, tr, st) => Toplevel.command_exception int tr st"
     )
-  val command_exception_with_10s_timeout
+  val command_exception_with_120s_timeout
       : MLFunction3[Boolean, Transition.T, ToplevelState, ToplevelState] =
     compileFunction[Boolean, Transition.T, ToplevelState, ToplevelState](
       """fn (int, tr, st) => let
         |  fun go_run (a, b, c) = Toplevel.command_exception a b c
-        |  in Timeout.apply (Time.fromSeconds 10) go_run (int, tr, st) end""".stripMargin
-    )
-  val command_exception_with_30s_timeout
-      : MLFunction3[Boolean, Transition.T, ToplevelState, ToplevelState] =
-    compileFunction[Boolean, Transition.T, ToplevelState, ToplevelState](
-      """fn (int, tr, st) => let
-        |  fun go_run (a, b, c) = Toplevel.command_exception a b c
-        |  in Timeout.apply (Time.fromSeconds 30) go_run (int, tr, st) end""".stripMargin
+        |  in Timeout.apply (Time.fromSeconds 120) go_run (int, tr, st) end""".stripMargin
     )
   val command_errors: MLFunction3[
     Boolean,
@@ -586,14 +579,14 @@ class PisaOS(
             |             val p_state = Toplevel.proof_of state;
             |             val ctxt = Proof.context_of p_state;
             |             val params = ${Sledgehammer_Commands}.default_params thy
-            |                [("provers", "cvc5 vampire verit e spass z3 zipperposition"),("timeout","60"),("verbose","true")];
+            |                [("provers", "cvc5 vampire verit e spass z3 zipperposition"),("timeout","120"),("verbose","true")];
             |             val results = ${Sledgehammer}.run_sledgehammer params ${Sledgehammer_Prover}.Normal NONE 1 override p_state;
             |             val (result, (outcome, step)) = results;
             |           in
             |             (result, (${Sledgehammer}.short_string_of_sledgehammer_outcome outcome, [YXML.content_of step]))
             |           end;
             |    in
-            |      Timeout.apply (Time.fromSeconds 600000) go_run (state, thy) end
+            |      Timeout.apply (Time.fromSeconds 150) go_run (state, thy) end
             |""".stripMargin
     )
 
@@ -638,22 +631,11 @@ class PisaOS(
 
   def getProofLevel: Int = getProofLevel(toplevel)
 
-  def singleTransitionWith10sTimeout(
+  def singleTransitionWith120sTimeout(
       single_transition: Transition.T,
       top_level_state: ToplevelState
   ): ToplevelState = {
-    command_exception_with_10s_timeout(
-      true,
-      single_transition,
-      top_level_state
-    ).retrieveNow.force
-  }
-
-  def singleTransitionWith30sTimeout(
-      single_transition: Transition.T,
-      top_level_state: ToplevelState
-  ): ToplevelState = {
-    command_exception_with_30s_timeout(
+    command_exception_with_120s_timeout(
       true,
       single_transition,
       top_level_state
@@ -708,7 +690,7 @@ class PisaOS(
   def step(
       isar_string: String,
       top_level_state: ToplevelState,
-      timeout_in_millis: Int = 30000,
+      timeout_in_millis: Int = 120000,
   ): ToplevelState = {
     if (debug) println("Begin step")
     // Normal isabelle business
@@ -729,9 +711,7 @@ class PisaOS(
             continue.breakable {
               if (text.trim.isEmpty) continue.break
               // println("Small step : " + text)
-              tls_to_return = if (timeout_in_millis > 10000) {
-                singleTransitionWith30sTimeout(transition, tls_to_return)
-              } else singleTransitionWith10sTimeout(transition, tls_to_return)
+              tls_to_return = singleTransitionWith120sTimeout(transition, tls_to_return)
               // println("Applied transition successfully")
             }
         }
