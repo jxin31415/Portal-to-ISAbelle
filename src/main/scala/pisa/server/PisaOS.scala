@@ -148,12 +148,12 @@ class PisaOS(
     compileFunction[Boolean, Transition.T, ToplevelState, ToplevelState](
       "fn (int, tr, st) => Toplevel.command_exception int tr st"
     )
-  val command_exception_with_120s_timeout
+  val command_exception_with_10s_timeout
       : MLFunction3[Boolean, Transition.T, ToplevelState, ToplevelState] =
     compileFunction[Boolean, Transition.T, ToplevelState, ToplevelState](
       """fn (int, tr, st) => let
         |  fun go_run (a, b, c) = Toplevel.command_exception a b c
-        |  in Timeout.apply (Time.fromSeconds 120) go_run (int, tr, st) end""".stripMargin
+        |  in Timeout.apply (Time.fromSeconds 10) go_run (int, tr, st) end""".stripMargin
     )
   val command_errors: MLFunction3[
     Boolean,
@@ -631,11 +631,11 @@ class PisaOS(
 
   def getProofLevel: Int = getProofLevel(toplevel)
 
-  def singleTransitionWith120sTimeout(
+  def singleTransitionWith10sTimeout(
       single_transition: Transition.T,
       top_level_state: ToplevelState
   ): ToplevelState = {
-    command_exception_with_120s_timeout(
+    command_exception_with_10s_timeout(
       true,
       single_transition,
       top_level_state
@@ -690,7 +690,7 @@ class PisaOS(
   def step(
       isar_string: String,
       top_level_state: ToplevelState,
-      timeout_in_millis: Int = 120000,
+      timeout_in_millis: Int = 10000,
   ): ToplevelState = {
     if (debug) println("Begin step")
     // Normal isabelle business
@@ -711,7 +711,7 @@ class PisaOS(
             continue.breakable {
               if (text.trim.isEmpty) continue.break
               // println("Small step : " + text)
-              tls_to_return = singleTransitionWith120sTimeout(transition, tls_to_return)
+              tls_to_return = singleTransitionWith10sTimeout(transition, tls_to_return)
               // println("Applied transition successfully")
             }
         }
