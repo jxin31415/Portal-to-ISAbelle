@@ -586,7 +586,7 @@ class PisaOS(
             |             (result, (${Sledgehammer}.short_string_of_sledgehammer_outcome outcome, [YXML.content_of step]))
             |           end;
             |    in
-            |      Timeout.apply (Time.fromSeconds 150) go_run (state, thy) end
+            |      Timeout.apply (Time.fromSeconds 240) go_run (state, thy) end
             |""".stripMargin
     )
 

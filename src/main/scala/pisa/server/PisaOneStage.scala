@@ -156,7 +156,7 @@ class OneStageBody extends ZServer[ZEnv, Any] {
   ): String = {
     // If found a sledgehammer step, execute it differently
     var raw_hammer_strings = List[String]()
-    val total_result = hammer_method(old_state, 150000)
+    val total_result = hammer_method(old_state, 240000)
     // println(total_result)
     val success = total_result._1
     val actual_step: String =
